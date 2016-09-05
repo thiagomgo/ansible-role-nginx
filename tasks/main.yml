@@ -21,6 +21,35 @@
 - include: setup-FreeBSD.yml
   when: ansible_os_family == 'FreeBSD'
 
+# Common tasks
+- name: Create nginx's directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  with_items:
+    - /etc/nginx/global
+    - /etc/nginx/rules
+
+- name: Copy rules in place
+  copy:
+    src: rules/
+    dest: /etc/nginx/rules/
+    owner: root
+    group: root
+    mode: "0644"
+  when: nginx_add_rules is defined and nginx_add_rules == true
+
+- name: Copy global files in place
+  copy:
+    src: global/
+    dest: /etc/nginx/global/
+    owner: root
+    group: root
+    mode: "0644"
+
 # Vhost configuration.
 - include: vhosts.yml
 

@@ -1,4 +1,6 @@
 user  {{ nginx_user }};
+worker_rlimit_nofile {{ nginx_worker_rlimit_nofile }};
+worker_priority {{ nginx_worker_priority }};
 
 error_log  {{ nginx_error_log }};
 pid        {{ nginx_pidfile }};
@@ -8,6 +10,7 @@ worker_processes  {{ nginx_worker_processes }};
 events {
     worker_connections  {{ nginx_worker_connections }};
     multi_accept {{ nginx_multi_accept }};
+    use epoll; # you should use epoll here for Linux kernels 2.6.x
 }
 
 {% if nginx_extra_conf_options %}
@@ -18,9 +21,9 @@ http {
     include       {{ nginx_mime_file_path }};
     default_type  application/octet-stream;
 
+    server_names_hash_max_size {{ nginx_server_names_hash_max_size }};
     server_names_hash_bucket_size {{ nginx_server_names_hash_bucket_size }};
-
-    client_max_body_size {{ nginx_client_max_body_size }};
+    server_name_in_redirect {{ nginx_server_name_in_redirect }};
 
     log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '
@@ -34,11 +37,37 @@ http {
 
     keepalive_timeout  {{ nginx_keepalive_timeout }};
     keepalive_requests {{ nginx_keepalive_requests }};
+    send_timeout       {{ nginx_send_timeout }};
+    reset_timedout_connection   {{ nginx_reset_timedout_connection }};
+    ignore_invalid_headers  {{ nginx_ignore_invalid_headers }};
 
-    #gzip  on;
+    client_header_timeout {{ nginx_client_header_timeout }};
+    client_body_timeout {{ nginx_client_body_timeout }};
+    client_header_buffer_size {{ nginx_client_header_buffer_size }};
+    client_max_body_size {{ nginx_client_max_body_size }};
+    client_body_in_file_only {{ nginx_client_body_in_file_only }};
+    large_client_header_buffers {{ nginx_large_client_header_buffers }};
+
+    connection_pool_size  {{ nginx_connection_pool_size }};
+    request_pool_size  {{ nginx_request_pool_size }};
+    output_buffers {{ nginx_output_buffers }};
+    postpone_output {{ nginx_postpone_output }};
+
+    proxy_buffer_size {{ nginx_proxy_buffer_size }};
+    proxy_buffers {{ nginx_proxy_buffers }};
+    proxy_busy_buffers_size {{ nginx_proxy_busy_buffers_size }};
+
+    proxy_connect_timeout       300;
+    proxy_send_timeout          300;
+    proxy_read_timeout          600;
+    proxy_buffering on;
+
 
 {% if nginx_proxy_cache_path %}
     proxy_cache_path {{ nginx_proxy_cache_path }};
+{% endif %}
+{% if nginx_proxy_cache_path %}
+    proxy_temp_path {{ nginx_proxy_temp_path }};
 {% endif %}
 
 {% if nginx_extra_http_options %}
@@ -56,8 +85,8 @@ http {
     }
 {% endfor %}
 
-    include {{ nginx_conf_path }}/*.conf;
+    include {{ nginx_conf_path }}/*.inc;
 {% if nginx_conf_path != nginx_vhost_path %}
-    include {{ nginx_vhost_path }}/*;
+    include {{ nginx_vhost_path }}/*.cfg;
 {% endif %}
 }

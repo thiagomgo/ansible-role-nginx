@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+
+server {
+        listen 127.0.0.1:8080;
+        server_name localhost;
+        location /nginx_status {
+            stub_status on;
+            access_log   off;
+            allow 127.0.0.1;
+            deny all;
+        }
+        location ~ ^/(php-fpm-status|php-fpm-ping)$ {
+            access_log off;
+            allow 127.0.0.1;
+            #allow 1.2.3.4#your-ip;
+            deny all;
+            include fastcgi_params;
+            fastcgi_pass 127.0.0.1:9000;
+            fastcgi_param SCRIPT_FILENAME /usr/share/nginx/html$fastcgi_script_name;
+            include global/proxy_php-fpm.inc;
+        }
+}

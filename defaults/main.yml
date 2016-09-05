@@ -9,7 +9,10 @@ nginx_ppa_version: stable
 # The name of the nginx apt/yum package to install.
 nginx_package_name: "nginx"
 
-nginx_worker_processes: "1"
+nginx_worker_rlimit_nofile: "8192"
+nginx_worker_priority: "0"
+
+nginx_worker_processes: "auto"
 nginx_worker_connections: "1024"
 nginx_multi_accept: "off"
 
@@ -22,12 +25,37 @@ nginx_tcp_nodelay: "on"
 
 nginx_keepalive_timeout: "65"
 nginx_keepalive_requests: "100"
+nginx_send_timeout: "10"
+nginx_reset_timedout_connection: "on"
+nginx_ignore_invalid_headers: "on"
 
+nginx_client_header_timeout: "10"
+nginx_client_body_timeout: "10"
+nginx_client_header_buffer_size: "4k"
+nginx_large_client_header_buffers: "4 32k"
 nginx_client_max_body_size: "64m"
+nginx_client_body_in_file_only: "on"
 
-nginx_server_names_hash_bucket_size: "64"
+nginx_server_names_hash_max_size: "2048"
+nginx_server_names_hash_bucket_size: "256"
+nginx_server_name_in_redirect: "off"
+
+nginx_connection_pool_size: "256"
+nginx_request_pool_size: "4k"
+nginx_output_buffers: "4 32k"
+nginx_postpone_output: "1460"
+
+nginx_proxy_buffer_size: "128k"
+nginx_proxy_buffers: "4 256k"
+nginx_proxy_busy_buffers_size: "256k"
+
+nginx_proxy_connect_timeout: "300"
+nginx_proxy_send_timeout: "300"
+nginx_proxy_read_timeout: "600"
+nginx_proxy_buffering: "on"
 
 nginx_proxy_cache_path: ""
+nginx_proxy_temp_path: ""
 
 nginx_extra_conf_options: ""
 # Example extra main options, used within the main nginx's context:
@@ -45,10 +73,12 @@ nginx_extra_http_options: ""
 #      proxy_set_header   Host $http_host;
 
 nginx_remove_default_vhost: false
-nginx_vhosts_filename: "vhosts.conf"
+nginx_add_rules: true
 nginx_vhosts: []
 # Example vhost below, showing all available options:
-# - listen: "80 default_server" # default: "80 default_server"
+# - id: domain name # file id (required)
+#   state: present # present or absent (required)
+#   listen: "80 default_server" # default: "80 default_server"
 #   server_name: "example.com" # default: N/A
 #   root: "/var/www/example.com" # default: N/A
 #   index: "index.html index.htm" # default: "index.html index.htm"
