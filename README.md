@@ -19,7 +19,9 @@ Available variables are listed below, along with default values (see `defaults/m
 A list of vhost definitions (server blocks) for Nginx virtual hosts. If left empty, you will need to supply your own virtual host configuration. See the commented example in `defaults/main.yml` for available server options. If you have a large number of customizations required for your server definition(s), you're likely better off managing the vhost configuration file yourself, leaving this variable set to `[]`.
 
     nginx_vhosts:
-      - listen: "80 default_server"
+      - id: example.com
+        state: present
+        listen: "80 default_server"
         server_name: "example.com"
         root: "/var/www/example.com"
         index: "index.php index.html index.htm"
@@ -40,10 +42,6 @@ An example of a fully-populated nginx_vhosts entry, using a `|` to declare a blo
     nginx_remove_default_vhost: false
 
 Whether to remove the 'default' virtualhost configuration supplied by Nginx. Useful if you want the base `/` URL to be directed at one of your own virtual hosts configured in a separate .conf file.
-
-    nginx_vhosts_filename: "vhosts.conf"
-
-The filename to use to store vhosts configuration. If you run the role multiple times (e.g. include the role with `with_items`), you can change the name for each run, effectively creating a separate vhosts file per vhost configuration.
 
     nginx_upstreams: []
 
